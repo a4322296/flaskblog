@@ -1,0 +1,151 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Flasky{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+<script src="https://cdn.ckeditor.com/4.7.0/standard/ckeditor.js"></script>
+{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">Flasky</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for('main.index') }}">主页</a></li>
+                {% if current_user.is_authenticated %}
+                <li>
+                    <a href="{{ url_for('main.user', username= current_user.username) }}">个人信息</a>
+                </li>
+                {% endif %}
+                {% if current_user.can(Permission.MODERATE_COMMENTS) %}
+                <li>
+                    <a href="{{ url_for('main.moderate')}}">管理评论</a>
+                </li>
+                {% endif %}
+            </ul>
+
+            <div role="search" id="zh-top-search" class="zu-top-search">
+            <form method="POST" action="{{ url_for('main.search') }}" id="zh-top-search-form" class="zu-top-search-form">
+
+            <input type="hidden" name="type" value="content">
+            <label for="q" class="hide-text">搜索</label><input type="text" class="zu-top-search-input" id="q" name="q" autocomplete="off" value="" maxlength="100" placeholder="搜索你感兴趣的内容...">
+            <button type="submit" class="zu-top-search-button"><span class="hide-text">搜索</span><span class="sprite-global-icon-magnifier-dark"></span></button>
+            </form>
+            </div>
+            
+                
+            
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li class="dropdown messages-menu">
+                    <!-- Menu toggle button -->
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                      <i class="fa fa-envelope-o"></i>
+                      <span class="label label-success">{{ current_user.unreadmessages()}} </span>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li class="header">你有 {{ current_user.unreadmessages()}} 条未读私信</li>
+                      <li>
+                        <!-- inner menu: contains the messages -->
+                        {% if current_user.unreadmessages() > 0 %}
+                        <ul class="menu">
+                          <li><!-- start message -->
+                            <a href="{{ url_for('main.showmessage') }}">
+                              <div class="pull-left">
+                                <!-- User Image -->
+                                {% if current_user.is_authenticated %}
+                                <!-- <img src="{{url_for('static',filename='img/my.jpg')}}" class="img-circle" alt="User Image"> -->
+                                <img class="user-image" alt="User Image" src="{{ current_user.lastmessageform().gravatar(size=256) }}">
+                                {% endif %}
+                              </div>
+                              <!-- Message title and timestamp -->
+                              <h4>
+                                <small><i class="fa fa-clock-o"></i> 最近的消息</small>
+                              <br>
+                              </h4>
+                              <!-- The message -->
+                              <p>{{ current_user.lastmessageform().username }}对你说:{{ current_user.lastmessage().body }}</p>
+                            </a>
+                          </li><!-- end message -->
+                        </ul><!-- /.menu -->
+                        </li>
+                        {% else %}
+                        <ul class="menu">
+                          <li><!-- start message -->
+                            <a href="{{ url_for('main.showmessage') }}">
+                            <h4>
+                                最近没有消息
+                                <small><i class="fa fa-clock-o"></i> 最近的消息</small>
+                            </h4>
+                            </a>
+                          </li>
+                        </ul>
+                        {% endif %}
+
+                      <li class="footer"><a href="{{ url_for('main.showmessage') }}">查看全部私信</a></li>
+                    </ul>
+                  </li><!-- /.messages-menu -->
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" >
+                    <img src="{{ current_user.gravatar(size=18) }}"> 账户信息 <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('auth.change_password')}}">更改密码</a></li>
+                        <li><a href="{{ url_for('auth.change_email_request') }}">更改邮箱</a></li>
+                        <li><a href="{{ url_for('auth.logout')}}">登出</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li><a href="{{ url_for('auth.login') }}">登入</a></li>
+                <li><a href="{{ url_for('auth.register' )}}">注册</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    
+
+    {% block page_content %}{% endblock %}
+</div>
+<div class="bar-footer">
+    <footer class="bar bar-footer bar-balanced" >
+       <div class="container">
+          <div class="text-center">
+      <p>Blog template built for <a href="http://getbootstrap.com">Bootstrap</a> by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+      <p>
+        <a href="#">Back to top</a>
+      </p>
+      </div>
+      </div>
+    </footer>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock %}

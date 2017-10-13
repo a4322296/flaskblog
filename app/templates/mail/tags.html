@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %} tags {% endblock %}
+
+{% block page_content %}
+<div class="ui segment">
+	<div class="ui point secondary menu red section-title">
+		<h2>标签</h2>
+	</div>
+	
+	<div>
+		{% for t in tags %}
+		<h3><span class="label label-default"><strong>{{ t.name }}</strong></span></h3>
+		<div>
+			{% for p in t.posts %}
+			<div>
+				<li><strong><a href="{{ url_for('.post', id=p.id) }}">{{ p.title }}</a></strong></li>
+			</div>
+			{% endfor %}
+		</div>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}

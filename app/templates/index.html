@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+{% block title %}Flasky{% endblock %}
+
+{% block page_content %}
+<div class="col-sm-8">
+<div class="page-header">
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</h1>
+
+</div>
+<div >
+	{% if current_user.can(Permission.WRITE_ARTICLES) %}
+	<a href="{{ url_for('.new_post')}}"><button type="button" class="btn btn-primary btn-lg btn-block">写文章</button></a>
+	{% endif %}
+</div>
+
+<div >
+	<ul class="nav nav-tabs">
+        <li{% if not show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">所有博客文章</a></li>
+        {% if current_user.is_authenticated %}
+        <li{% if show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_followed') }}">关注的文章</a></li>
+        {% endif %}
+    </ul>
+    {% include "_posts.html" %}
+</div>
+</div>
+<br>
+<br>
+<br>
+<div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+          <div class="sidebar-module sidebar-module-inset">
+            <h4>关于作者</h4>
+            <p><strong>在写bug的路上越走越远</strong></p>
+            <p>一个初学者关于个人博客搭建的一些尝试.</p>
+            <p>通过简单的博客系统的搭建，学习各种知识。</p>
+          </div>
+          <div class="sidebar-module">
+            <h4>相关标签文章</h4>
+            <ol class="list-unstyled">
+              <li><a href="{{ url_for('.tags_posts')}}"><span class="label label-primary">所有标签</span></a></li>
+              <div>
+                {% for tag in g.tags %}
+                <li>
+                  <a href="{{ url_for('.tag', name=tag.name)}}"><span class="label label-default">{{ tag.name}}</span></a>
+                  <br>
+
+                </li>
+                {% endfor%}
+              </div>
+
+            </ol>
+          </div>
+          <div class="sidebar-module">
+            <h4>其他信息</h4>
+            <ol class="list-unstyled">
+              <li><a href="https://github.com/Mddlearn/flaskyblog">GitHub</a></li>
+              <li><a href="#">Twitter</a></li>
+
+            </ol>
+          </div>
+        </div><!-- /.blog-sidebar -->
+{% if pagination %}
+<div class="pagination">
+	{{ macros.pagination_widget(pagination, '.index') }}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
