@@ -6,7 +6,7 @@
 6，实现了权限，关注人，聊天，文章分类，评论，点赞，上传头像<br>
 7.flask-babelex实现后台中文功能<br>
 8.使用ckeditor编辑器<br>
-8.flask_email ,加celery实现异步分发邮件<br>
-*注意celery worker -A manage.celery --loglevel=info  开启
+9.flask_email ,加celery实现异步分发邮件
+  *注意celery worker -A manage.celery --loglevel=info  开启
 
 
